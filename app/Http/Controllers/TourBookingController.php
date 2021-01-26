@@ -15,30 +15,19 @@ class TourBookingController extends Controller
 	
 	public function userAdd(Request $request){
     	$validator = Validator::make($request->all(), [
-    		'fullname' =>'required|string',
-    		'selected_tour_id' =>'required',
-    		'phone_number' =>'required',
-    		'email' =>'required|email',
-    		'country' =>'required',
-    		'rate' =>'required',
-    		'adult_price' =>'required',
-    		'children_price' =>'required'
+    		'selected_tour_id' =>'required'
     	]);
 
     	if ($validator->fails()) {
     		return response()->json(["message"=> $validator->errors()], 422);
     	}
     	try {
+
+        $user = auth()->setToken($request->bearerToken())->user();
     		
         	$tour_booking   = new Tour_booking();
-        	$tour_booking->fullname     = $request->get('fullname');
+        	$tour_booking->user_id     = $user->id;
         	$tour_booking->selected_tour_id     = $request->get('selected_tour_id');
-        	$tour_booking->phone_number     = $request->get('phone_number');
-        	$tour_booking->email     = $request->get('email');
-        	$tour_booking->country     = $request->get('country');
-        	$tour_booking->rate     = $request->get('rate');
-        	$tour_booking->adult_price     = $request->get('adult_price');
-        	$tour_booking->children_price     = $request->get('children_price');
         	$tour_booking->booked_by     = 'user';
         	$tour_booking->save();
 
@@ -57,18 +46,12 @@ class TourBookingController extends Controller
 /*----------./User Add Tour Booking----------*/
 
 
-
 /*----------agent Add Tour Booking----------*/
 	public function agentAdd(Request $request){
     	$validator = Validator::make($request->all(), [
-    		'fullname' =>'required|string',
+    		'traveller_id' =>'required|string',
     		'selected_tour_id' =>'required',
-    		'phone_number' =>'required',
-    		'email' =>'required|email',
-    		'country' =>'required',
-    		'rate' =>'required',
-    		'adult_price' =>'required',
-    		'children_price' =>'required'
+    		
     	]);
 
     	if ($validator->fails()) {
@@ -84,14 +67,9 @@ class TourBookingController extends Controller
 	        }
     		
         	$tour_booking   = new Tour_booking();
-        	$tour_booking->fullname     = $request->get('fullname');
+        	$tour_booking->traveller_id     = $request->get('traveller_id');
         	$tour_booking->selected_tour_id     = $request->get('selected_tour_id');
-        	$tour_booking->phone_number     = $request->get('phone_number');
-        	$tour_booking->email     = $request->get('email');
-        	$tour_booking->country     = $request->get('country');
-        	$tour_booking->rate     = $request->get('rate');
-        	$tour_booking->adult_price     = $request->get('adult_price');
-        	$tour_booking->children_price     = $request->get('children_price');
+        	
         	$tour_booking->booked_by     = 'agent';
         	$tour_booking->agent_id     = $agent->id;
         	$tour_booking->save();
@@ -115,49 +93,61 @@ class TourBookingController extends Controller
 /*----------Admin View all Tour Booking----------*/
     public function index()
 	{
-		$tourBooking = Tour_booking::all();
-    	return response()->json(['tourBooking'=>$tourBooking, 'message'=>'Tour Bookings fetched Successfully'], 200);
+
+		$tourBooking = DB::table('tour_bookings')
+            ->leftJoin('tours', 'tours.id', '=', 'tour_bookings.selected_tour_id')
+            ->leftJoin('users', 'users.id', '=', 'tour_bookings.user_id')
+            ->leftJoin('travellers', 'travellers.id', '=', 'tour_bookings.traveller_id')
+            ->leftJoin('agents', 'agents.id', '=', 'tour_bookings.agent_id')
+
+            ->select('tour_bookings.id','tours.tour','adult_price','children_price','rate','tours.country','users.name','agents.name', 'travellers.fullname','tour_bookings.created_at','tour_bookings.updated_at')
+            ->orderBy('tour_bookings.id', 'desc')
+            ->get();
+
+            return response()->json([
+                 'tourBooking'=>$tourBooking, 
+                 'message'=>'Tour Bookings fetched Successfully'
+             ], 200);
 	}
 
 /*----------./Admin View all Tour Booking----------*/
 
 
 
-
 /*----------Admin View all users Tour Booking----------*/
     
-    public function userTourBookings()
-	{
-		$tourBooking = DB::select(
-        'SELECT * From tour_bookings 
-            WHERE booked_by = ?  
-            ORDER BY id DESC', ['user']
-        );
+ //    public function userTourBookings()
+	// {
+	// 	$tourBooking = DB::select(
+ //        'SELECT * From tour_bookings 
+ //            WHERE booked_by = ?  
+ //            ORDER BY id DESC', ['user']
+ //        );
 
-    	return response()->json([
-    		'tourBooking'=>$tourBooking, 
-    		'message'=>'Tour Bookings for users fetched Successfully'
-    	], 200);
-	}
+ //    	return response()->json([
+ //    		'tourBooking'=>$tourBooking, 
+ //    		'message'=>'Tour Bookings for users fetched Successfully'
+ //    	], 200);
+	// }
 
 /*----------./Admin View all users Tour Booking----------*/
 
 
 /*----------Admin View all Agent Tour Booking----------*/
     
-    public function agentTourBookings()
-	{
-		$tourBooking = DB::select(
-        'SELECT * From tour_bookings 
-            WHERE booked_by = ?  
-            ORDER BY id DESC', ['agent']
-        );
+ //    public function agentTourBookings()
+	// {
+	// 	$tourBooking = DB::select(
+ //        'SELECT * From tour_bookings 
+ //            WHERE booked_by = ?  
+ //            ORDER BY id DESC', ['agent']
+ //        );
 
-    	return response()->json([
-    		'tourBooking'=>$tourBooking, 
-    		'message'=>'Tour Bookings for users fetched Successfully'
-    	], 200);
-	}
+ //    	return response()->json([
+ //    		'tourBooking'=>$tourBooking, 
+ //    		'message'=>'Tour Bookings for users fetched Successfully'
+ //    	], 200);
+	// }
 
 /*----------./Admin View all agent Tour Booking----------*/
 
@@ -166,28 +156,28 @@ class TourBookingController extends Controller
 
 /*----------Agent View his bookings----------*/
     
-    public function agentView(Request $request)
-	{
+ //    public function agentView(Request $request)
+	// {
 
-		$agent = auth('agent-api')->setToken($request->bearerToken())->user();
+	// 	$agent = auth('agent-api')->setToken($request->bearerToken())->user();
     		
-	        if ($agent == NULL) {
+	//         if ($agent == NULL) {
 
-	            return response()->json(['message'=>'Agent not found!'], 400);
-	        }
+	//             return response()->json(['message'=>'Agent not found!'], 400);
+	//         }
 
 
-		$tourBooking = DB::select(
-        'SELECT * From tour_bookings 
-            WHERE agent_id = ?  
-            ORDER BY id DESC', [$agent->id]
-        );
+	// 	$tourBooking = DB::select(
+ //        'SELECT * From tour_bookings 
+ //            WHERE agent_id = ?  
+ //            ORDER BY id DESC', [$agent->id]
+ //        );
 
-    	return response()->json([
-    		'tourBooking'=>$tourBooking, 
-    		'message'=>'Tour Bookings for '.$agent->name.' fetched Successfully'
-    	], 200);
-	}
+ //    	return response()->json([
+ //    		'tourBooking'=>$tourBooking, 
+ //    		'message'=>'Tour Bookings for '.$agent->name.' fetched Successfully'
+ //    	], 200);
+	// }
 
 /*----------./Agent View his bookings----------*/
 
@@ -195,11 +185,11 @@ class TourBookingController extends Controller
 
 /*----------Admin View single Tour Booking----------*/
 
-	public function view($id)
-    {
-        $tourBooking = Tour_booking::find($id);
-        return response()->json(['tourBooking'=>$tourBooking, 'message'=>'Tour Booking fetched Successfully'], 200);
-    }
+	// public function view($id)
+ //    {
+ //        $tourBooking = Tour_booking::find($id);
+ //        return response()->json(['tourBooking'=>$tourBooking, 'message'=>'Tour Booking fetched Successfully'], 200);
+ //    }
 
 /*----------./Admin View single Tour Booking----------*/
 

@@ -191,6 +191,21 @@ Route::group(
 );
 
 
+Route::group(
+	[	'middleware' => 'api',
+		'namespace' => 'App\Http\Controllers',
+		'prefix' => 'tours'
+	],function($router){
+		Route::get('/', 'TourController@index');
+		Route::get('view/{id}', 'TourController@view');
+		Route::put('update/{id}', 'TourController@update')->middleware('jwt.verify');
+		
+		Route::post('add', 'TourController@add')->middleware('jwt.verify');
+		Route::delete('delete/{id}', 'TourController@delete')->middleware('jwt.verify');
+	}
+);
+
+
 
 Route::group(
 	[	'middleware' => 'api',

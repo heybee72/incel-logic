@@ -16,6 +16,10 @@ class CreateToursTable extends Migration
         Schema::create('tours', function (Blueprint $table) {
             $table->id();
             $table->string('tour')->nullable();
+            $table->string('adult_price')->nullable();
+            $table->string('children_price')->nullable();
+            $table->string('rate')->nullable();
+            $table->string('country')->nullable();
             $table->timestamps();
         });
     }

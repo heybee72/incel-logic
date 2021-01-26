@@ -15,14 +15,11 @@ class CreateTourBookingsTable extends Migration
     {
         Schema::create('tour_bookings', function (Blueprint $table) {
             $table->id();
-            $table->string('fullname')->nullable();
+        
+            $table->string('user_id')->nullable();
+            $table->string('traveller_id')->nullable();
             $table->integer('selected_tour_id')->nullable();
-            $table->string('phone_number')->nullable();
-            $table->string('email')->nullable();
-            $table->string('country')->nullable();
-            $table->string('rate')->nullable();
-            $table->string('adult_price')->nullable();
-            $table->string('children_price')->nullable();
+
             $table->enum('booked_by', ['user','agent'])->nullable();
             $table->integer('agent_id')->nullable();
 
