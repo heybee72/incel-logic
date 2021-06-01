@@ -3,6 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\FileController;
+
+Route::post("upload", [FileController::class, 'upload']);
+
 
 Route::group(
 	[
@@ -14,14 +18,17 @@ Route::group(
 	function($router){
 		Route::post('login', 	'AuthController@login');
 		Route::post('register', 'AuthController@register');
+		Route::post('forgot-password', 'ForgotPasswordController@forgot');
 		Route::get('profile', 	'AuthController@profile')->middleware('auth');
 		
 		Route::post('update', 	'AuthController@update')->middleware('auth');
 		Route::post('logout', 	'AuthController@logout');
 		Route::post('refresh', 	'AuthController@refresh');
-		Route::delete('delete/{id}', 	'AuthController@delete')->middleware('jwt.verify');
 		Route::post('change-password', 'AuthController@change_password')->middleware('auth');
-		Route::post('forgot-password', 'ForgotPasswordController@forgot');
+
+		Route::delete('delete/{id}', 	'AuthController@delete')->middleware('jwt.verify');
+		Route::get('/', 'AuthController@index')->middleware('jwt.verify');
+
 
 	}
 );
@@ -59,11 +66,11 @@ Route::group(
 		Route::get('profile', 	'AgentAuthController@profile');
 		Route::post('logout', 	'AgentAuthController@logout');
 		Route::post('refresh', 	'AgentAuthController@refresh');
+		Route::get('/', 'AgentAuthController@index')->middleware('jwt.verify');
 		Route::delete('delete/{id}', 'AgentAuthController@delete')->middleware('jwt.verify');
+		Route::put('updateAgentStatus/{id}', 'AgentAuthController@updateAgentStatus')->middleware('jwt.verify');
+
 		
-		// Route::post('update', 	'AuthController@update')->middleware('auth');
-		// Route::post('change-password', 'AuthController@change_password')->middleware('auth');
-		// Route::post('forgot-password', 'ForgotPasswordController@forgot');
 
 	}
 );
@@ -77,7 +84,7 @@ Route::group(
 		Route::post('userAdd', 	'TourBookingController@userAdd');
 	
 		Route::post('agentAdd', 'TourBookingController@agentAdd')->middleware('jwt.verifyAgent');
-		Route::post('agentViewBooking', 'TourBookingController@agentView')->middleware('jwt.verifyAgent');
+		Route::get('agentViewBooking', 'TourBookingController@agentView');
 
 		Route::get('/', 'TourBookingController@index')->middleware('jwt.verify');
 		Route::get('view/{id}', 'TourBookingController@view')->middleware('jwt.verify');
@@ -92,8 +99,36 @@ Route::group(
 	[
 		'middleware' => 'api',
 		'namespace' => 'App\Http\Controllers',
+		'prefix' => 'car_rentals'
+	],function($router){
+
+		Route::post('userAdd', 	'CarRentalController@userAdd');
+	
+		Route::post('agentAdd', 'CarRentalController@agentAdd')->middleware('jwt.verifyAgent');
+
+		Route::get('agentViewBooking', 'CarRentalController@agentView');
+
+
+		// Route::get('userView/{id}', 'CarRentalController@userView')->middleware('jwt.verify');
+		
+		// Route::get('agentView/{id}', 'CarRentalController@agentView')->middleware('jwt.verify');
+
+
+		// Route::get('agent', 'CarRentalController@agent')->middleware('jwt.verify');
+		// Route::get('user','CarRentalController@user')->middleware('jwt.verify');
+		Route::delete('delete/{id}', 'CarRentalController@delete')->middleware('jwt.verify');	
+	}
+);
+
+
+Route::group(
+	[
+		'middleware' => 'api',
+		'namespace' => 'App\Http\Controllers',
 		'prefix' => 'hotel_bookings'
 	],function($router){
+		$router->post('search_hotels', 'HotelBookingController@searchHotels');
+		$router->post('search_cities', 'HotelBookingController@searchCities');
 		Route::post('userAdd', 	'HotelBookingController@userAdd');
 	
 		Route::post('agentAdd', 'HotelBookingController@agentAdd')->middleware('jwt.verifyAgent');
@@ -315,9 +350,11 @@ Route::group(
 		Route::post('add', 'TravellerController@add')->middleware('jwt.verifyAgent');
 		Route::put('update/{id}', 'TravellerController@update')->middleware('jwt.verifyAgent');
 
+		Route::post('profile_image_update', 'TravellerController@profile_image_update')->middleware('jwt.verifyAgent');
+
 		Route::get('/', 'TravellerController@index')->middleware('jwt.verify');
 		Route::get('view/{id}', 'TravellerController@view')->middleware('jwt.verify');
-		Route::post('agent_view', 'TravellerController@agent_view')->middleware('jwt.verifyAgent');
+		Route::get('agent_view', 'TravellerController@agent_view')->middleware('jwt.verifyAgent');
 		
 		
 		Route::delete('delete/{id}', 'TravellerController@delete')->middleware('jwt.verify');
@@ -365,6 +402,19 @@ Route::group(
 		
 		Route::post('add', 'AddonController@add')->middleware('jwt.verify');
 		Route::delete('delete/{id}', 'AddonController@delete')->middleware('jwt.verify');
+	}
+);
+
+
+Route::group(
+	[	'middleware' => 'api',
+		'namespace' => 'App\Http\Controllers',
+		'prefix' => 'site_details'
+	],function($router){
+		Route::get('/', 'SiteDetailController@index');
+		Route::put('update/{id}', 'SiteDetailController@update')->middleware('jwt.verify');
+		
+		Route::post('add', 'SiteDetailController@add')->middleware('jwt.verify');
 	}
 );
 

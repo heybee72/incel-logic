@@ -73,7 +73,15 @@ class CurrencyController extends Controller
             ->leftJoin('admins', 'admins.id', '=', 'currencies.admin_id')
             ->leftJoin('currency_types', 'currency_types.slug', '=', 'currencies.currency')
 
-            ->select('currencies.id','amount','currency','name','email','currencies.created_at','currencies.updated_at')
+            ->select(
+                'currencies.id',
+                'amount',
+                'currency',
+                'name',
+                'email',
+                'currencies.created_at',
+                'currencies.updated_at'
+            )
             ->orderBy('currencies.id', 'desc')
             ->take(1)
             ->where('currencies.currency', $slug)

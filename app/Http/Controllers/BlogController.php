@@ -96,10 +96,10 @@ class BlogController extends Controller
     			$blog->category_id     = $request->get('category_id');
                 $blog->image     = Storage::url($image_uploaded_path);
 
-                if ($news->save()) {
+                if ($blog->save()) {
 	                return response()->json([
-	                    'news'=>$news, 
-	                    'message'=>'news updated Successfully'
+	                    'blog'=>$blog, 
+	                    'message'=>'blog updated Successfully'
 	                ], 201);
 	            }else{
 	                return response()->json([

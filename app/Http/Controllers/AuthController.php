@@ -17,7 +17,15 @@ class AuthController extends Controller
 {
 // public $arr;
     public function __construct(){
-    	$this->middleware('auth:api', ['except' => [ 'login', 'register','forgot_password'] ]);
+    	$this->middleware('auth:api', ['except' => [ 'login', 'register','forgot_password','index'] ]);
+    }
+
+
+    public function index()
+    {
+        $user = user::all();
+
+        return response()->json(['user'=>$user, 'message'=>'users fetched Successfully'], 200);
     }
 
 /*-----Start of login API------*/ 
@@ -45,10 +53,22 @@ class AuthController extends Controller
                     'message' => 'Invalid Login Details'
                 ], 401);
             }
-    	   return $this->respondWithToken($token, "User logged in Successfully!");	
+        
+            $user_details = auth()->setToken($token)->user();
+
+            $user_details = user::find($user_details->id);
+
+            return response()->json(
+                [
+                        'user_details'=>$user_details,
+                        'token' => $token
+                    ]
+                    , 200);
+
+    	   // return $this->respondWithToken($token, "User logged in Successfully!");	
 
         }catch(\Exception $e){
-
+            return $e;
             return response()->json([
                 'message' => 'An Error Occured']);
         }

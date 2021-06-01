@@ -17,10 +17,14 @@ class TravellerController extends Controller
     	$validator = Validator::make($request->all(), [
 
     		'title' =>'required',
-    		'fullname' =>'required',
-    		'email' =>'required|email',
+            'firstname' =>'required',
+            'middlename' =>'required',
+    		'lastname' =>'required',
+            'email' =>'required|email|unique:travellers',
     		'address' =>'required',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'yob' =>'required',
+            'mob' =>'required',
     		'dob' =>'required',
     		'country' =>'required',
     		'state' =>'required',
@@ -46,13 +50,19 @@ class TravellerController extends Controller
     		
         	$traveller   = new traveller();
         	$traveller->title     = $request->get('title');
-        	$traveller->fullname     = $request->get('fullname');
+            $traveller->firstname     = $request->get('firstname');
+            $traveller->middlename     = $request->get('middlename');
+        	$traveller->lastname     = $request->get('lastname');
         	$traveller->email     = $request->get('email');
         	$traveller->address     = $request->get('address');
         	$traveller->phone     = $request->get('phone');
 
+            $traveller->yob     = $request->get('yob');
+            $traveller->mob     = $request->get('mob');
         	$traveller->dob     = $request->get('dob');
-        	$traveller->country     = $request->get('country');
+
+            $traveller->country     = $request->get('country');
+        	$traveller->state     = $request->get('state');
         	$traveller->city     = $request->get('city');
         	$traveller->zip     = $request->get('zip');
         	$traveller->passport_number     = $request->get('passport_number');
@@ -86,11 +96,15 @@ class TravellerController extends Controller
 
         $validator = Validator::make($request->all(), [
             'title' =>'required',
-    		'fullname' =>'required',
-    		'email' =>'required|email',
-    		'address' =>'required',
+            'firstname' =>'required',
+            'middlename' =>'required',
+            'lastname' =>'required',
+            'email' =>'required|email|unique:travellers',
+            'address' =>'required',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
-    		'dob' =>'required',
+            'yob' =>'required',
+            'mob' =>'required',
+            'dob' =>'required',
     		'country' =>'required',
     		'state' =>'required',
     		'city' =>'required',
@@ -108,13 +122,18 @@ class TravellerController extends Controller
             
     		$traveller = traveller::find($id);
     		$traveller->title     = $request->get('title');
-        	$traveller->fullname     = $request->get('fullname');
-        	$traveller->email     = $request->get('email');
-        	$traveller->address     = $request->get('address');
-        	$traveller->phone     = $request->get('phone');
+        	$traveller->firstname     = $request->get('firstname');
+            $traveller->middlename     = $request->get('middlename');
+            $traveller->lastname     = $request->get('lastname');
+            $traveller->email     = $request->get('email');
+            $traveller->address     = $request->get('address');
+            $traveller->phone     = $request->get('phone');
 
-        	$traveller->dob     = $request->get('dob');
-        	$traveller->country     = $request->get('country');
+            $traveller->yob     = $request->get('yob');
+            $traveller->mob     = $request->get('mob');
+            $traveller->dob     = $request->get('dob');
+            $traveller->country     = $request->get('country');
+        	$traveller->state     = $request->get('state');
         	$traveller->city     = $request->get('city');
         	$traveller->zip     = $request->get('zip');
         	$traveller->passport_number     = $request->get('passport_number');
@@ -149,6 +168,55 @@ class TravellerController extends Controller
     }
 
 /*Update Data*/ 
+
+
+
+/*-------Update profile image api-------*/ 
+    public function profile_image_update(Request $request){
+
+        $user = auth('agent-api')->setToken($request->bearerToken())->user();
+
+
+            $id    = $request->get('id');
+       
+            $found = Traveller::find($id);
+
+        if ($user == NULL) {
+            return response()->json([
+                'message'=> 'Agent not found!'
+            ], 401); 
+
+        }else{
+
+            $validator = Validator::make($request->all(), [
+                'profile_image' =>'required|mimes:jpeg,png,jpg|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(["message"=> $validator->errors()], 422);
+            }
+
+            $uploadFolder = 'travellers';
+
+            if ($request->hasFile('profile_image')) {
+                $image = $request->file('profile_image');
+
+                    $image_uploaded_path = $image->store($uploadFolder, 'public');
+                    $found->profile_image     = Storage::url($image_uploaded_path);
+
+                $found->save();
+                return "<img src='http://127.0.0.1:8000".$found->profile_image."'>";
+                return response()->json([
+                    'traveller'=>$found->profile_image, 
+                    // 'message'=> 'traveller\'s profile updated Successfully!'
+                ], 200);     
+            }else{
+                return response()->json(['message'=>'An error occurred!'], 500);
+            }
+        }
+        
+    }
+/*------./Updateprofile image api---------*/ 
 
 public function index()
 	{

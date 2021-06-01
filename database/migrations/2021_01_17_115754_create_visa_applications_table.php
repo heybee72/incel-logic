@@ -19,10 +19,8 @@ class CreateVisaApplicationsTable extends Migration
             $table->integer('user_id')->nullable();
             $table->integer('visa_type_id')->nullable();
 
-
             $table->string('home_address')->nullable();
             $table->string('destination_address')->nullable();
-            $table->string('duration')->nullable();
             $table->text('remark')->nullable();
 
             $table->integer('traveller_id')->nullable();

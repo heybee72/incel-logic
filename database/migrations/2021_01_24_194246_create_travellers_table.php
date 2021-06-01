@@ -25,6 +25,7 @@ class CreateTravellersTable extends Migration
             $table->string('dob')->nullable();
             
             $table->string('country')->nullable();
+            $table->text('profile_image')->nullable();
             $table->string('state')->nullable();
             $table->string('city')->nullable();
             $table->string('zip')->nullable();

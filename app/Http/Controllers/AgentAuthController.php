@@ -13,9 +13,58 @@ use Illuminate\Support\Str;
 class AgentAuthController extends Controller 
 {
     public function __construct(){
-    	$this->middleware('jwt.verifyAgent:api', ['except' => ['login','register'] ]);
+    	$this->middleware('jwt.verifyAgent:api', ['except' => ['login','register','index','updateAgentStatus'] ]);
     }
 
+
+
+    public function index()
+    {
+        $agent = Agent::all();
+
+        return response()->json(['agent'=>$agent, 'message'=>'Agents fetched Successfully'], 200);
+    }
+
+
+    public function updateAgentStatus(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'approved' =>'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["message"=> $validator->errors()], 422);
+        }
+
+        $agent = agent::find($id);
+
+        if ($agent->approved == 'no') {
+            
+            $agentStatus = DB::update(
+                'UPDATE agents SET approved = ?  WHERE id = ? ', ['yes', $id]
+            );
+
+            return response()->json([
+                'message'=>$agentStatus, 
+                'message'=>'Agent has been approved'
+            ], 200);
+
+        }elseif ($agent->approved == 'yes') {
+
+            $agentStatus = DB::update(
+                'UPDATE agents SET approved = ?  WHERE id = ? ', ['no', $id]
+            );
+
+            return response()->json([
+                'message'=>$agentStatus, 
+                'message'=>'Agent has been deactivated'
+            ], 200);
+
+        }
+
+        
+
+    }
 
 
 /*-----Start of login API------*/ 

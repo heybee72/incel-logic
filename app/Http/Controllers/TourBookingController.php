@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Agent;
 use App\Models\Tour_booking;
-use Illuminate\Http\Request;
 use DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class TourBookingController extends Controller
@@ -100,7 +100,28 @@ class TourBookingController extends Controller
             ->leftJoin('travellers', 'travellers.id', '=', 'tour_bookings.traveller_id')
             ->leftJoin('agents', 'agents.id', '=', 'tour_bookings.agent_id')
 
-            ->select('tour_bookings.id','tours.tour','adult_price','children_price','rate','tours.country','users.name','agents.name', 'travellers.fullname','tour_bookings.created_at','tour_bookings.updated_at')
+            ->select(
+                'tour_bookings.id',
+                'travellers.fullname',
+                'travellers.email',
+
+                'agents.name',
+                'agents.email',
+                'agents.phone',
+
+                'users.name',
+                'users.email',
+                'users.phone',
+
+                'tours.tour',
+                'tours.adult_price',
+                'tours.children_price',
+                'tours.rate',
+                'tours.country',
+                
+                'tour_bookings.created_at',
+                'tour_bookings.updated_at'
+            )
             ->orderBy('tour_bookings.id', 'desc')
             ->get();
 
@@ -114,70 +135,69 @@ class TourBookingController extends Controller
 
 
 
-/*----------Admin View all users Tour Booking----------*/
-    
- //    public function userTourBookings()
-	// {
-	// 	$tourBooking = DB::select(
- //        'SELECT * From tour_bookings 
- //            WHERE booked_by = ?  
- //            ORDER BY id DESC', ['user']
- //        );
-
- //    	return response()->json([
- //    		'tourBooking'=>$tourBooking, 
- //    		'message'=>'Tour Bookings for users fetched Successfully'
- //    	], 200);
-	// }
-
-/*----------./Admin View all users Tour Booking----------*/
-
-
-/*----------Admin View all Agent Tour Booking----------*/
-    
- //    public function agentTourBookings()
-	// {
-	// 	$tourBooking = DB::select(
- //        'SELECT * From tour_bookings 
- //            WHERE booked_by = ?  
- //            ORDER BY id DESC', ['agent']
- //        );
-
- //    	return response()->json([
- //    		'tourBooking'=>$tourBooking, 
- //    		'message'=>'Tour Bookings for users fetched Successfully'
- //    	], 200);
-	// }
-
-/*----------./Admin View all agent Tour Booking----------*/
 
 
 
 
 /*----------Agent View his bookings----------*/
     
- //    public function agentView(Request $request)
-	// {
-
-	// 	$agent = auth('agent-api')->setToken($request->bearerToken())->user();
+    public function agentView(Request $request)
+	{
+        
+		$agent = auth('agent-api')->setToken($request->bearerToken())->user();
     		
-	//         if ($agent == NULL) {
+	        if ($agent == NULL) {
 
-	//             return response()->json(['message'=>'Agent not found!'], 400);
-	//         }
+	            return response()->json(['message'=>'Agent not found!'], 400);
+	        }
 
 
-	// 	$tourBooking = DB::select(
- //        'SELECT * From tour_bookings 
- //            WHERE agent_id = ?  
- //            ORDER BY id DESC', [$agent->id]
- //        );
+           $tourBooking = DB::table('tour_bookings')
+            ->leftJoin('travellers', 'travellers.id', '=', 'tour_bookings.traveller_id')
+            ->leftJoin('agents', 'agents.id', '=', 'tour_bookings.agent_id')
+            ->leftJoin('tours', 'tours.id', '=', 'tour_bookings.selected_tour_id')
 
- //    	return response()->json([
- //    		'tourBooking'=>$tourBooking, 
- //    		'message'=>'Tour Bookings for '.$agent->name.' fetched Successfully'
- //    	], 200);
-	// }
+            ->select(
+                'tour_bookings.id',
+                'travellers.fullname',
+                'travellers.email',
+                'travellers.address',
+                'travellers.phone',
+                'travellers.dob',
+                'travellers.country',
+                'travellers.state',
+                'travellers.city',
+                'travellers.passport_number',
+                'travellers.country_of_issue',
+
+                'agents.name',
+                'agents.email',
+                'agents.phone',
+                'agents.username',
+                'agents.company',
+                'agents.country',
+                'agents.business_address',
+
+                'tours.tour',
+                'tours.adult_price',
+                'tours.children_price',
+                'tours.rate',
+                'tours.country',
+
+
+                'tour_bookings.created_at',
+                'tour_bookings.updated_at'
+            )
+            ->where('tour_bookings.agent_id', $agent->id)
+            ->orderBy('tour_bookings.id', 'desc')
+            ->get();
+
+
+    	return response()->json([
+    		'tourBooking'=>$tourBooking, 
+    		'message'=>'Tour Bookings for '.$agent->name.' fetched Successfully'
+    	], 200);
+	}
 
 /*----------./Agent View his bookings----------*/
 
@@ -185,11 +205,58 @@ class TourBookingController extends Controller
 
 /*----------Admin View single Tour Booking----------*/
 
-	// public function view($id)
- //    {
- //        $tourBooking = Tour_booking::find($id);
- //        return response()->json(['tourBooking'=>$tourBooking, 'message'=>'Tour Booking fetched Successfully'], 200);
- //    }
+	public function view($id)
+    {
+        $tourBooking = $tourBooking = DB::table('tour_bookings')
+            ->leftJoin('travellers', 'travellers.id', '=', 'tour_bookings.traveller_id')
+            ->leftJoin('agents', 'agents.id', '=', 'tour_bookings.agent_id')
+            ->leftJoin('users', 'users.id', '=', 'tour_bookings.user_id')
+            ->leftJoin('tours', 'tours.id', '=', 'tour_bookings.selected_tour_id')
+
+            ->select(
+                'tour_bookings.id',
+                'travellers.fullname',
+                'travellers.email',
+                'travellers.address',
+                'travellers.phone',
+                'travellers.dob',
+                'travellers.country',
+                'travellers.state',
+                'travellers.city',
+                'travellers.passport_number',
+                'travellers.country_of_issue',
+
+                'agents.name',
+                'agents.email',
+                'agents.phone',
+                'agents.username',
+                'agents.company',
+                'agents.country',
+                'agents.business_address',
+
+                'tours.tour',
+                'tours.adult_price',
+                'tours.children_price',
+                'tours.rate',
+                'tours.country',
+
+                'users.name',
+                'users.email',
+                'users.phone',
+                'users.country',
+               
+                'tour_bookings.created_at',
+                'tour_bookings.updated_at'
+            )
+            ->take(1)
+            ->where('tour_bookings.id', $id)
+            ->get();
+
+        return response()->json([
+            'tourBooking'=>$tourBooking, 
+            'message'=>'Tour Booking fetched Successfully'
+        ], 200);
+    }
 
 /*----------./Admin View single Tour Booking----------*/
 
