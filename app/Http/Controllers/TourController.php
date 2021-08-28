@@ -6,6 +6,7 @@ use App\Models\Tour;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 use DB;
 
 class TourController extends Controller
@@ -104,30 +105,54 @@ public function add(Request $request){
 /*Update Data*/ 
 
 
-public function view($id)
+    public function view($id)
     {
         $tour = tour::find($id);
         return response()->json(['tour'=>$tour, 'message'=>'tour fetched Successfully'], 200);
     }
 
 
+    public function getTourCountries(){
 
-/*DELETE DATA*/ 
-    public function delete($id)
-    {
-    	$tour = tour::find($id);
-        if ($tour == NULL) {
-            return response()->json([
-            'message'=> 'An error occurred!'
-        ], 500);
-        }
-            $tour->delete();
+        $response = Http::get('http://sandbox.raynatours.com/api/Tour/countries');
 
-        return response()->json([
-            'message'=> 'tour Deleted Successfully!'
-        ], 200); 
+        return response()->json(['countries'=>$response, 'message'=>'tour countries fetched Successfully'], 200);
     }
-/*DELETE DATA*/ 
+
+    // public function getStaticTours(){
+
+    //     $validator = Validator::make($request->all(), [
+    //         'CountryId' =>'required',
+    //         'cityId' =>'required',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(["message"=> $validator->errors()], 422);
+    //     }
+
+
+
+    // }
+
+        
+
+
+    /*DELETE DATA*/ 
+        public function delete($id)
+        {
+            $tour = tour::find($id);
+            if ($tour == NULL) {
+                return response()->json([
+                'message'=> 'An error occurred!'
+            ], 500);
+            }
+                $tour->delete();
+
+            return response()->json([
+                'message'=> 'tour Deleted Successfully!'
+            ], 200); 
+        }
+    /*DELETE DATA*/ 
 
 
 }

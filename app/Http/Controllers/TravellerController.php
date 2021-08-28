@@ -30,6 +30,7 @@ class TravellerController extends Controller
     		'state' =>'required',
     		'city' =>'required',
     		'zip' =>'required',
+    		'profile_image' =>'required|mimes:png,jpg,jpeg,gif|max:2048',
     		'passport_number' =>'required',
     		'country_of_issue' =>'required',
     		'date_issue' =>'required',
@@ -48,39 +49,49 @@ class TravellerController extends Controller
 	            return response()->json(['message'=>'agent not found!'], 400);
 	        }
     		
-        	$traveller   = new traveller();
-        	$traveller->title     = $request->get('title');
-            $traveller->firstname     = $request->get('firstname');
-            $traveller->middlename     = $request->get('middlename');
-        	$traveller->lastname     = $request->get('lastname');
-        	$traveller->email     = $request->get('email');
-        	$traveller->address     = $request->get('address');
-        	$traveller->phone     = $request->get('phone');
+            $uploadFolder = 'travellers';
 
-            $traveller->yob     = $request->get('yob');
-            $traveller->mob     = $request->get('mob');
-        	$traveller->dob     = $request->get('dob');
+            if ($image = $request->file('profile_image')) {
+                $image_uploaded_path = $image->store($uploadFolder, 'public');
 
-            $traveller->country     = $request->get('country');
-        	$traveller->state     = $request->get('state');
-        	$traveller->city     = $request->get('city');
-        	$traveller->zip     = $request->get('zip');
-        	$traveller->passport_number     = $request->get('passport_number');
-        	$traveller->country_of_issue     = $request->get('country_of_issue');
-        	$traveller->date_issue     = $request->get('date_issue');
-        	$traveller->exp_date     = $request->get('exp_date');
-        	$traveller->emergency_phone     = $request->get('emergency_phone');
-        	$traveller->emergency_email     = $request->get('emergency_email');
-        	$traveller->emergency_address     = $request->get('emergency_address');
-        	$traveller->insurance_company     = $request->get('insurance_company');
-        	$traveller->insurance_phone     = $request->get('insurance_phone');
-        	$traveller->agent_id     = $agent->id;
-        	$traveller->save();
+                $traveller   = new traveller();
+                $traveller->title     = $request->get('title');
+                $traveller->firstname     = $request->get('firstname');
+                $traveller->middlename     = $request->get('middlename');
+                $traveller->lastname     = $request->get('lastname');
+                $traveller->email     = $request->get('email');
+                $traveller->address     = $request->get('address');
+                $traveller->phone     = $request->get('phone');
 
-        	// send mail to admin here 
-        	
-    		return response()->json(['traveller'=>$traveller, 'message'=>'mark up Created Successfully'], 201);
+                $traveller->yob     = $request->get('yob');
+                $traveller->mob     = $request->get('mob');
+                $traveller->dob     = $request->get('dob');
 
+                $traveller->country     = $request->get('country');
+                $traveller->state     = $request->get('state');
+                $traveller->city     = $request->get('city');
+                $traveller->zip     = $request->get('zip');
+                $traveller->passport_number     = $request->get('passport_number');
+                $traveller->country_of_issue     = $request->get('country_of_issue');
+                $traveller->date_issue     = $request->get('date_issue');
+                $traveller->exp_date     = $request->get('exp_date');
+                $traveller->emergency_phone     = $request->get('emergency_phone');
+                $traveller->emergency_email     = $request->get('emergency_email');
+                $traveller->emergency_address     = $request->get('emergency_address');
+                $traveller->insurance_company     = $request->get('insurance_company');
+                $traveller->insurance_phone     = $request->get('insurance_phone');
+                $traveller->agent_id     = $agent->id;
+
+                $traveller->profile_image     = Storage::url($image_uploaded_path);
+
+                $traveller->save();
+
+                // send mail to admin here 
+                
+                return response()->json(['traveller'=>$traveller, 'message'=>'mark up Created Successfully'], 201);
+            }else{
+                return response()->json(['message'=>'An error occurred!'], 500);
+            }
     	} catch (Exception $e) {
 
     		return response()->json(['message'=>'An error occurred', 'error'=>$e->message()], 422);
@@ -232,6 +243,25 @@ public function view($id)
         return response()->json(['traveller'=>$traveller, 'message'=>'traveller fetched Successfully'], 200);
     }
 
+
+    public function agentViewSingle(Request $request, $id)
+    {
+	    $agent = auth('agent-api')->setToken($request->bearerToken())->user();
+
+        if ($agent == NULL) {
+
+            return response()->json(['message'=>'agent not found!'], 400);
+        }
+
+
+		$traveller = DB::select(
+        'SELECT * From  travellers 
+            WHERE agent_id = ?  
+            AND id = ? ', [$agent->id, $id]
+        );
+
+        return response()->json(['traveller'=>$traveller, 'message'=>'traveller fetched Successfully'], 200);
+    }
 
 
 public function agent_view(Request $request)

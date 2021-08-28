@@ -17,12 +17,16 @@ class CreateTravellersTable extends Migration
             $table->id();
 
             $table->integer('agent_id')->nullable();
-            $table->enum('title', ['mr','mrs'])->default('mr');
-            $table->string('fullname')->nullable();
+            $table->string('title')->nullable();
+            $table->string('firstname')->nullable();
+            $table->string('middlename')->nullable();
+            $table->string('lastname')->nullable();
             $table->string('email')->nullable();
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('dob')->nullable();
+            $table->string('yob')->nullable();
+            $table->string('mob')->nullable();
             
             $table->string('country')->nullable();
             $table->text('profile_image')->nullable();

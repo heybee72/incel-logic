@@ -65,13 +65,33 @@ class VisaApplicationController extends Controller
 /*----------agent Add visa application Booking----------*/
 	public function agentAdd(Request $request){
     	$validator = Validator::make($request->all(), [
-    		'visa_type_id' =>'required',
-    		'home_address' =>'required',
-    		'destination_address' =>'required',
-    		'traveller_id' =>'required',
-            'remark' =>'required',
-            'data_page' =>'required',
-    		'passport' =>'required'
+    		'country' =>'required',
+    		'nationality_id' =>'required',
+    		'traveller' =>'required',
+    		'visatype' =>'required',
+            'passporttype' =>'required',
+            'language' =>'required',
+    		'profession' =>'required',
+    		'processing' =>'required',
+    		'maritalstatus' =>'required',
+    		'gendertype' =>'required',
+    		'religion' =>'required',
+    		'groupmembership' =>'required',
+    		'agent_id' =>'required',
+    		'first_name_eng' =>'required',
+    		'middle_name_eng' =>'required',
+    		'last_name_eng' =>'required',
+    		'issue_date' =>'required',
+    		'expiry_date' =>'required',
+    		'father_name_eng' =>'required',
+    		'mother_name_eng' =>'required',
+    		'birth_place_eng' =>'required',
+    		'birth_date' =>'required',
+    		'email' =>'required',
+    		'mobile' =>'required',
+    		'passport' =>'required',
+    		'attachments' =>'required',
+    		'attachment_blobs' =>'required',
     	]);
 
     	if ($validator->fails()) {
@@ -86,57 +106,62 @@ class VisaApplicationController extends Controller
 	            return response()->json(['message'=>'Agent not found!'], 400);
 	        }
 
-              $uploadFolder = 'visa_applications';
-                 
-                if ($image_1 = $request->file('passport') AND $image_2 = $request->file('data_page')) {
 
-                    $image_1_uploaded_path = $image_1->store($uploadFolder, 'public');
-                    $image_2_uploaded_path = $image_2->store($uploadFolder, 'public');
+			
+
+
+
+            //   $uploadFolder = 'visa_applications';
+                 
+            //     if ($image_1 = $request->file('passport') AND $image_2 = $request->file('data_page')) {
+
+            //         $image_1_uploaded_path = $image_1->store($uploadFolder, 'public');
+            //         $image_2_uploaded_path = $image_2->store($uploadFolder, 'public');
                     
 
-                	$visa_application   = new visa_application();
+            //     	$visa_application   = new visa_application();
 
-                	$visa_application->user_id     = $request->get('user_id');
-                	$visa_application->visa_type_id     = $request->get('visa_type_id');
-                	$visa_application->home_address     = $request->get('home_address');
-                	$visa_application->destination_address     = $request->get('destination_address');
-                	$visa_application->traveller_id     = $request->get('traveller_id');
-                	$visa_application->remark     = $request->get('remark');
-                	$visa_application->booked_by     = 'agent';
-                	$visa_application->agent_id     = $agent->id;
+            //     	$visa_application->user_id     = $request->get('user_id');
+            //     	$visa_application->visa_type_id     = $request->get('visa_type_id');
+            //     	$visa_application->home_address     = $request->get('home_address');
+            //     	$visa_application->destination_address     = $request->get('destination_address');
+            //     	$visa_application->traveller_id     = $request->get('traveller_id');
+            //     	$visa_application->remark     = $request->get('remark');
+            //     	$visa_application->booked_by     = 'agent';
+            //     	$visa_application->agent_id     = $agent->id;
 
-                    $visa_application->passport     = Storage::url($image_1_uploaded_path);
-                    $visa_application->data_page     = Storage::url($image_2_uploaded_path);
+            //         $visa_application->passport     = Storage::url($image_1_uploaded_path);
+            //         $visa_application->data_page     = Storage::url($image_2_uploaded_path);
 
-                	$visa_application->save();
+            //     	$visa_application->save();
 
-                    $last_visa_id = Visa_application::latest()->first()->id;
-
-
-                    $additional_document   = new Additional_document();
+            //         $last_visa_id = Visa_application::latest()->first()->id;
 
 
-                    $files = $request->file('attachment');
-                    if($request->hasFile('attachment'))
-                    {
-                        $types = explode(',' , $request->get('document_type'));
-                        foreach ($files as $file) {
-                            foreach ($types as $type) {
-                                $path = $file->store($uploadFolder, 'public');
-                                $additional_document->document_type = $type;
-                                $additional_document->image = Storage::url($path);
-                                $additional_document->visa_application_id = $last_visa_id;
-                                $additional_document->agent_id = $agent->id;
-                                $additional_document->save();
-                            }
-                        }
-                    }
+            //         $additional_document   = new Additional_document();
 
 
-                	// send mail to admin here 
+            //         $files = $request->file('attachment');
+            //         if($request->hasFile('attachment'))
+            //         {
+            //             $types = explode(',' , $request->get('document_type'));
+            //             foreach ($files as $file) {
+            //                 foreach ($types as $type) {
+            //                     $path = $file->store($uploadFolder, 'public');
+            //                     $additional_document->document_type = $type;
+            //                     $additional_document->image = Storage::url($path);
+            //                     $additional_document->visa_application_id = $last_visa_id;
+            //                     $additional_document->agent_id = $agent->id;
+            //                     $additional_document->save();
+            //                 }
+            //             }
+            //         }
+
+
+            //     	// send mail to admin here 
                 
-    		      return response()->json(['visa_application'=>$visa_application, 'message'=>'Visa Application Created Successfully'], 201);
-                } 
+    		//       return response()->json(['visa_application'=>$visa_application, 'message'=>'Visa Application Created Successfully'], 201);
+            //     } 
 
     	} catch (Exception $e) {
 

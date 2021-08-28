@@ -88,9 +88,13 @@ Route::group(
 
 		Route::get('/', 'TourBookingController@index')->middleware('jwt.verify');
 		Route::get('view/{id}', 'TourBookingController@view')->middleware('jwt.verify');
+		Route::get('agentView/{id}', 'TourBookingController@view')->middleware('jwt.verifyAgent');
 		Route::get('viewBookingForUsers', 'TourBookingController@userBookings')->middleware('jwt.verify');
 		Route::get('viewBookingForAgents','TourBookingController@agentBookings')->middleware('jwt.verify');
 		Route::delete('delete/{id}', 'TourBookingController@delete')->middleware('jwt.verify');	
+
+		Route::get('getTourCountries', 'TourController@getTourCountries');
+
 	}
 );
 
@@ -129,6 +133,12 @@ Route::group(
 	],function($router){
 		$router->post('search_hotels', 'HotelBookingController@searchHotels');
 		$router->post('search_cities', 'HotelBookingController@searchCities');
+		$router->post('searchRooms', 'HotelBookingController@searchRooms');
+		$router->get('getcurrenciesids', 'HotelBookingController@getcurrenciesids');
+
+		$router->get('getratebasisids', 'HotelBookingController@getratebasisids');
+		$router->get('getallcountries', 'HotelBookingController@getallcountries');
+
 		Route::post('userAdd', 	'HotelBookingController@userAdd');
 	
 		Route::post('agentAdd', 'HotelBookingController@agentAdd')->middleware('jwt.verifyAgent');
@@ -355,6 +365,8 @@ Route::group(
 		Route::get('/', 'TravellerController@index')->middleware('jwt.verify');
 		Route::get('view/{id}', 'TravellerController@view')->middleware('jwt.verify');
 		Route::get('agent_view', 'TravellerController@agent_view')->middleware('jwt.verifyAgent');
+
+		Route::get('agentViewSingle/{id}', 'TravellerController@agentViewSingle')->middleware('jwt.verifyAgent');
 		
 		
 		Route::delete('delete/{id}', 'TravellerController@delete')->middleware('jwt.verify');
@@ -415,6 +427,18 @@ Route::group(
 		Route::put('update/{id}', 'SiteDetailController@update')->middleware('jwt.verify');
 		
 		Route::post('add', 'SiteDetailController@add')->middleware('jwt.verify');
+	}
+);
+
+
+Route::group(
+	[	'middleware' => 'api',
+		'namespace' => 'App\Http\Controllers',
+		'prefix' => 'payment'
+	],function($router){
+		
+		Route::post('validatePayment', 'PaymentController@validatePayment');
+		Route::post('validatePendingPayment', 'PaymentController@validatePendingPayment');
 	}
 );
 

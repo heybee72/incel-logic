@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Hash;
 class AdminAuthController extends Controller
 {
     public function __construct(){
-    	$this->middleware('jwt.verify:api', ['except' => ['login'] ]);
+    	$this->middleware('jwt.verify:api', ['except' => ['login','register'] ]);
     }
 
 

@@ -145,7 +145,7 @@ class AgentAuthController extends Controller
         $uploadFolder = 'profiles';
 
         if ($image = $request->file('profile_image')) {
-           $image_uploaded_path = $image->store($uploadFolder, 'public');
+           $image_uploaded_path = $image->store($uploadFolder, 'public'); 
 
             $agent               = new Agent;
             $agent->name         = $request->get('name');
